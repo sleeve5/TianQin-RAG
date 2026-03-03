@@ -2,9 +2,9 @@ server:
   port: 8081 # 指定端口号
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/PaiSmart?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/TianqinRag?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
-    password: PaiSmart2025
+    password: tianqin
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -17,7 +17,7 @@ spring:
     redis:
       host: localhost
       port: 6379
-      password: PaiSmart2025
+      password: tianqin
   servlet:
     multipart:
       enabled: true
@@ -56,7 +56,7 @@ spring:
 minio:
   endpoint: http://localhost:19000
   accessKey: admin
-  secretKey: PaiSmart2025
+  secretKey: tianqin
   bucketName: uploads
   publicUrl: http://localhost:19000
 jwt:
@@ -67,7 +67,7 @@ jwt:
 # 管理员账号初始化配置
 admin:
   username: admin
-  password: PaiSmart2025
+  password: tianqin
   primary-org: default
   org-tags: default,admin
 
@@ -82,7 +82,7 @@ elasticsearch:
   port: 9200            # Elasticsearch端口号
   scheme: http         # 协议（http/https）
   username: elastic     # 安装后生成的默认用户
-  password: PaiSmart2025
+  password: tianqin
 
 
 logging:
@@ -90,7 +90,7 @@ logging:
     org.springframework.web: DEBUG
     org.springframework.boot.autoconfigure.web.servlet: DEBUG
     org.springframework.security: DEBUG
-    com.yizhaoqi.smartpai.service: DEBUG
+    com.sleeve.tianqinrag.service: DEBUG
     io.minio: DEBUG
 
 log4j:
