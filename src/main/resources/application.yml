@@ -26,6 +26,8 @@ spring:
   kafka:
     enabled: true  # 启用 Kafka
     bootstrap-servers: 127.0.0.1:9092 # Kafka 服务器地址
+    properties:
+      security.protocol: PLAINTEXT
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -33,8 +35,6 @@ spring:
       retries: 3
       enable-idempotence: true
       transactional-id-prefix: file-upload-tx-
-      properties:
-        client.dns.lookup: use_all_dns_ips
     consumer:
       group-id: file-processing-group # 消费者组 ID
       auto-offset-reset: earliest
@@ -42,7 +42,6 @@ spring:
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: "*" # 允许反序列化的包
-        client.dns.lookup: use_all_dns_ips
     topic:
       file-processing: file-processing-topic1 # 新增的 Topic 配置
       dlt: file-processing-dlt # 死信队列主题
