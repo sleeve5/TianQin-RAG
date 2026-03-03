@@ -1,26 +1,27 @@
 {
-  "name": "pi-smart",
+  "name": "tianqin-rag",
   "type": "module",
-  "version": "1.3.13",
-  "description": "PaiSmart",
+  "version": "1.0.0",
+  "description": "Tianqin RAG System - AI Knowledge Base for Gravitational Wave Detection",
   "author": {
-    "name": "Your Name",
-    "url": "https://github.com/yourusername/your-repo.git"
+    "name": "sleeve5",
+    "url": "https://github.com/sleeve5/Pai-Smart.git"
   },
   "license": "MIT",
-  "homepage": "https://github.com/yourusername/your-repo.git",
+  "homepage": "https://github.com/sleeve5/Pai-Smart.git",
   "repository": {
-    "url": "https://github.com/yourusername/your-repo.git"
+    "url": "https://github.com/sleeve5/Pai-Smart.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/your-repo/issues"
+    "url": "https://github.com/sleeve5/Pai-Smart/issues"
   },
   "keywords": [
-    "ai",
+    "tianqin",
     "rag",
     "llm",
-    "chat",
-    "knowledge-base"
+    "gravitational-wave",
+    "knowledge-base",
+    "ai"
   ],
   "engines": {
     "node": ">=18.20.0",

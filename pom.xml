@@ -8,11 +8,11 @@
         <version>3.4.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.yizhaoqi</groupId>
-    <artifactId>SmartPAI</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>SmartPAI</name>
-    <description>SmartPAI</description>
+    <groupId>com.tianqin</groupId>
+    <artifactId>tianqin-rag</artifactId>
+    <version>1.0.0</version>
+    <name>TianqinRAG</name>
+    <description>天琴 RAG 系统 - 面向引力波探测项目的智能知识库管理平台</description>
     <url/>
     <licenses>
         <license/>
