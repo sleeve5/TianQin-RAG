@@ -56,7 +56,7 @@ spring:
 minio:
   endpoint: http://localhost:19000
   accessKey: admin
-  secretKey: tianqin
+  secretKey: tianqin2024
   bucketName: uploads
   publicUrl: http://localhost:19000
 jwt:
