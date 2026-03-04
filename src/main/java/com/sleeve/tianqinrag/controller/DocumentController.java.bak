@@ -1,4 +1,4 @@
-package com.yizhaoqi.smartpai.controller;
+package com.sleeve.tianqinrag.controller;
 
 import model.com.sleeve.tianqinrag.FileUpload;
 import model.com.sleeve.tianqinrag.OrganizationTag;

@@ -6,7 +6,7 @@ defineOptions({
 
 <template>
   <DarkModeContainer class="h-full flex-center">
-    <a href="https://github.com/sleeve5/Pai-Smart.git" target="_blank" rel="noopener noreferrer">
+    <a href="https://github.com/sleeve5/TianQin-RAG.git" target="_blank" rel="noopener noreferrer">
       Copyright MIT © 2025 TianqinRAG
     </a>
   </DarkModeContainer>

@@ -1,8 +1,8 @@
-# 派聪明 (PaiSmart) - 首页
+# 天琴 RAG 系统 (Tianqin RAG System) - 首页
 
 ## 项目简介
 
-派聪明是一款基于 Java 技术栈的 RAG（检索增强生成）知识库项目。HomePage为该项目提供了一个现代化的首页展示，采用响应式设计，支持深色/浅色主题切换，为用户提供优秀的浏览体验。
+天琴 RAG 系统是面向天琴引力波探测项目的智能知识库管理平台，采用检索增强生成（RAG）技术，为引力波探测研究提供智能文档处理和检索能力。HomePage为该项目提供了一个现代化的首页展示，采用响应式设计，支持深色/浅色主题切换，为用户提供优秀的浏览体验。
 
 ## 功能特性
 
@@ -16,11 +16,11 @@
 
 ### 🚀 核心功能
 
-- **项目展示**：展示派聪明 RAG 知识库的核心功能
+- **项目展示**：展示天琴 RAG 系统的核心功能
 - **技术栈展示**：展示项目使用的技术栈（MySQL、Redis、MinIO、Kafka、Elasticsearch）
-- **AI 模型支持**：展示支持的多种 AI 模型（DeepSeek、通义千问、OpenAI、Claude 等）
+- **AI 模型支持**：展示支持的多种 AI 模型（DeepSeek API / Ollama + Embedding 模型）
 - **功能流程**：详细展示 RAG 知识库的完整工作流程
-- **社区链接**：提供微信社群、知识星球等社区入口
+- **社区链接**：提供项目相关的社区入口
 
 ## 技术栈
 
@@ -76,8 +76,8 @@ homepage/
 1. **克隆项目**
 
    ```bash
-   git clone https://github.com/itwanger/PaiSmart.git
-   cd PaiSmart/homepage
+   git clone https://github.com/sleeve5/TianQin-RAG.git
+   cd TianQin-RAG/homepage
    ```
 
 2. **安装依赖**
@@ -145,11 +145,9 @@ particlesJS('particles-js', {
 
 ## 联系方式
 
-- **项目主页**：<https://github.com/itwanger/PaiSmart>
-- **作者**：沉默王二
-- **微信**：qing_gee
-- **知识星球**：<https://javabetter.cn/zhishixingqiu/>
+- **项目地址**: https://github.com/sleeve5/TianQin-RAG.git
+- **问题反馈**: https://github.com/sleeve5/TianQin-RAG/issues
 
 ---
 
-**注意**：本文档会随着项目的发展持续更新，请定期查看最新版本。
+*本项目服务于天琴引力波探测计划，助力中国空间引力波探测研究。*

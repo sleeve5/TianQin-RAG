@@ -130,13 +130,13 @@ services:
       - es-data:/usr/share/elasticsearch/data
     environment:
       - ELASTIC_PASSWORD=tianqin
-      - node.name=pai-smart-es01
+      - node.name=tianqin-RAG-es01
       - discovery.type=single-node
       - xpack.license.self_generated.type=basic
       - xpack.security.enabled=true
       - xpack.security.enrollment.enabled=false
       - xpack.security.http.ssl.enabled=false
-      - cluster.name=pai-smart-es-cluster
+      - cluster.name=tianqin-rag-es-cluster
 
       # 内存配置 (根据可用RAM调整)
       - ES_JAVA_OPTS=-Xms2g -Xmx2g

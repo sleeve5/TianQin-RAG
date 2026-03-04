@@ -92,8 +92,8 @@ MIT License
 
 ## 联系方式
 
-- 项目地址: https://github.com/sleeve5/Pai-Smart.git
-- 问题反馈: https://github.com/sleeve5/Pai-Smart/issues
+- 项目地址: https://github.com/sleeve5/TianQin-RAG.git
+- 问题反馈: https://github.com/sleeve5/TianQin-RAG/issues
 
 ---
 

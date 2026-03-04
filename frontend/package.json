@@ -5,15 +5,15 @@
   "description": "Tianqin RAG System - AI Knowledge Base for Gravitational Wave Detection",
   "author": {
     "name": "sleeve5",
-    "url": "https://github.com/sleeve5/Pai-Smart.git"
+    "url": "https://github.com/sleeve5/TianQin-RAG.git"
   },
   "license": "MIT",
-  "homepage": "https://github.com/sleeve5/Pai-Smart.git",
+  "homepage": "https://github.com/sleeve5/TianQin-RAG.git",
   "repository": {
-    "url": "https://github.com/sleeve5/Pai-Smart.git"
+    "url": "https://github.com/sleeve5/TianQin-RAG.git"
   },
   "bugs": {
-    "url": "https://github.com/sleeve5/Pai-Smart/issues"
+    "url": "https://github.com/sleeve5/TianQin-RAG/issues"
   },
   "keywords": [
     "tianqin",
@@ -117,5 +117,5 @@
     "commit-msg": "pnpm sa git-commit-verify",
     "pre-commit": "cd frontend && pnpm typecheck && pnpm lint && git diff --exit-code"
   },
-  "website": "https://github.com/itwanger/PaiSmart.git"
+  "website": "hhttps://github.com/sleeve5/TianQin-RAG.git"
 }
