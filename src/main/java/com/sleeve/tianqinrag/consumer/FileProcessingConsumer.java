@@ -25,7 +25,6 @@ public class FileProcessingConsumer {
     @Autowired
     private KafkaConfig kafkaConfig;
 
-
     public FileProcessingConsumer(ParseService parseService, VectorizationService vectorizationService) {
         this.parseService = parseService;
         this.vectorizationService = vectorizationService;
@@ -34,9 +33,9 @@ public class FileProcessingConsumer {
     @KafkaListener(topics = "#{kafkaConfig.getFileProcessingTopic()}", groupId = "#{kafkaConfig.getFileProcessingGroupId()}")
     public void processTask(FileProcessingTask task) {
         log.info("Received task: {}", task);
-        log.info("文件权限信息: userId={}, orgTag={}, isPublic={}", 
+        log.info("文件权限信息: userId={}, orgTag={}, isPublic={}",
                 task.getUserId(), task.getOrgTag(), task.isPublic());
-                
+
         InputStream fileStream = null;
         try {
             // 下载文件
@@ -52,12 +51,12 @@ public class FileProcessingConsumer {
             }
 
             // 解析文件
-            parseService.parseAndSave(task.getFileMd5(), fileStream, 
+            parseService.parseAndSave(task.getFileMd5(), fileStream,
                     task.getUserId(), task.getOrgTag(), task.isPublic());
             log.info("文件解析完成，fileMd5: {}", task.getFileMd5());
 
             // 向量化处理
-            vectorizationService.vectorize(task.getFileMd5(), 
+            vectorizationService.vectorize(task.getFileMd5(),
                     task.getUserId(), task.getOrgTag(), task.isPublic());
             log.info("向量化完成，fileMd5: {}", task.getFileMd5());
         } catch (Exception e) {
@@ -82,7 +81,9 @@ public class FileProcessingConsumer {
      * @param filePath 文件路径或 URL
      * @return 文件输入流
      */
-    private InputStream downloadFileFromStorage(String filePath) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    private InputStream downloadFileFromStorage(String filePath) throws ServerException, InsufficientDataException,
+            ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException,
+            InvalidResponseException, XmlParserException, InternalException {
         log.info("Downloading file from storage: {}", filePath);
 
         try {
@@ -100,10 +101,10 @@ public class FileProcessingConsumer {
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 connection.setRequestMethod("GET");
                 connection.setConnectTimeout(30000); // 连接超时30秒
-                connection.setReadTimeout(180000);   // 读取超时时间3分钟
+                connection.setReadTimeout(180000); // 读取超时时间3分钟
 
                 // 添加必要的请求头
-                connection.setRequestProperty("User-Agent", "SmartPAI-FileProcessor/1.0");
+                connection.setRequestProperty("User-Agent", "TianQin-RAG-FileProcessor/1.0");
 
                 int responseCode = connection.getResponseCode();
                 if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -114,7 +115,8 @@ public class FileProcessingConsumer {
                     throw new IOException("Access forbidden - the presigned URL may have expired");
                 } else {
                     log.error("Failed to download file, HTTP response code: {} for URL: {}", responseCode, filePath);
-                    throw new IOException(String.format("Failed to download file, HTTP response code: %d", responseCode));
+                    throw new IOException(
+                            String.format("Failed to download file, HTTP response code: %d", responseCode));
                 }
             }
 

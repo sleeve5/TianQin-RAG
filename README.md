@@ -70,7 +70,7 @@ cd frontend && pnpm install && pnpm dev
 
 ```
 .
-├── src/main/java/com/yizhaoqi/smartpai/    # 后端代码
+├── src/main/java/com/sleeve/tianqinrag/    # 后端代码
 ├── frontend/                                # 前端代码
 ├── docs/                                    # Docker 配置和文档
 └── README.md
