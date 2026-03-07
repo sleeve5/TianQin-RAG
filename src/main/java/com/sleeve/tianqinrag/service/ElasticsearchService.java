@@ -33,7 +33,7 @@ public class ElasticsearchService {
     public void bulkIndex(List<EsDocument> documents) {
         try {
             logger.info("开始批量索引文档到Elasticsearch，文档数量: {}", documents.size());
-            
+
             // 将文档列表转换为批量操作列表，每个文档都对应一个索引操作
             List<BulkOperation> bulkOperations = documents.stream()
                     .map(doc -> BulkOperation.of(op -> op.index(idx -> idx
@@ -45,10 +45,10 @@ public class ElasticsearchService {
 
             // 创建BulkRequest对象，并将批量操作列表添加到请求中
             BulkRequest request = BulkRequest.of(b -> b.operations(bulkOperations));
-            
+
             // 执行批量索引操作
             BulkResponse response = esClient.bulk(request);
-            
+
             // 检查响应结果
             if (response.errors()) {
                 logger.error("批量索引过程中发生错误:");
@@ -70,14 +70,14 @@ public class ElasticsearchService {
 
     /**
      * 根据file_md5删除文档
+     * 
      * @param fileMd5 文件指纹
      */
     public void deleteByFileMd5(String fileMd5) {
         try {
             DeleteByQueryRequest request = DeleteByQueryRequest.of(d -> d
                     .index("knowledge_base")
-                    .query(q -> q.term(t -> t.field("fileMd5").value(fileMd5)))
-            );
+                    .query(q -> q.term(t -> t.field("fileMd5").value(fileMd5))));
             esClient.deleteByQuery(request);
         } catch (Exception e) {
             throw new RuntimeException("删除文档失败", e);
