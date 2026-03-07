@@ -23,26 +23,26 @@ import java.util.stream.Collectors;
  */
 @Service
 public class OrgTagCacheService {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(OrgTagCacheService.class);
-    
+
     private static final String USER_ORG_TAGS_KEY_PREFIX = "user:org_tags:";
     private static final String USER_PRIMARY_ORG_KEY_PREFIX = "user:primary_org:";
     private static final String USER_EFFECTIVE_TAGS_KEY_PREFIX = "user:effective_org_tags:";
     private static final long CACHE_TTL_HOURS = 24;
     private static final String DEFAULT_ORG_TAG = "DEFAULT";
-    
+
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
-    
+
     @Autowired
     private OrganizationTagRepository organizationTagRepository;
-    
+
     /**
      * 缓存用户的组织标签
      * 
      * @param username 用户名
-     * @param orgTags 组织标签列表
+     * @param orgTags  组织标签列表
      */
     public void cacheUserOrgTags(String username, List<String> orgTags) {
         try {
@@ -54,7 +54,7 @@ public class OrgTagCacheService {
             logger.error("Failed to cache organization tags for user: {}", username, e);
         }
     }
-    
+
     /**
      * 获取用户的组织标签
      * 
@@ -76,11 +76,11 @@ public class OrgTagCacheService {
         }
         return null;
     }
-    
+
     /**
      * 缓存用户的主组织标签
      * 
-     * @param username 用户名
+     * @param username   用户名
      * @param primaryOrg 主组织标签
      */
     public void cacheUserPrimaryOrg(String username, String primaryOrg) {
@@ -93,7 +93,7 @@ public class OrgTagCacheService {
             logger.error("Failed to cache primary organization for user: {}", username, e);
         }
     }
-    
+
     /**
      * 获取用户的主组织标签
      * 
@@ -109,7 +109,7 @@ public class OrgTagCacheService {
             return null;
         }
     }
-    
+
     /**
      * 删除用户的组织标签缓存
      * 
@@ -126,7 +126,7 @@ public class OrgTagCacheService {
             logger.error("Failed to delete organization tags cache for user: {}", username, e);
         }
     }
-    
+
     /**
      * 获取用户的有效标签权限集合（包含用户直接拥有的标签及其所有父标签）
      * 
@@ -138,45 +138,45 @@ public class OrgTagCacheService {
             // 从缓存获取
             String cacheKey = USER_EFFECTIVE_TAGS_KEY_PREFIX + username;
             List<Object> cachedTags = redisTemplate.opsForList().range(cacheKey, 0, -1);
-            
+
             if (cachedTags != null && !cachedTags.isEmpty()) {
                 List<String> effectiveTags = cachedTags.stream()
                         .map(Object::toString)
                         .collect(Collectors.toList());
-                
+
                 // 确保默认标签在结果中（从缓存读取的情况）
                 if (!effectiveTags.contains(DEFAULT_ORG_TAG)) {
                     effectiveTags.add(DEFAULT_ORG_TAG);
                 }
-                
+
                 return effectiveTags;
             }
-            
+
             // 缓存未命中，计算有效标签集合
             List<String> userTags = getUserOrgTags(username);
             Set<String> allEffectiveTags = new HashSet<>();
-            
+
             // 如果用户有标签，添加到集合中并查找父标签
             if (userTags != null && !userTags.isEmpty()) {
                 allEffectiveTags.addAll(userTags);
-            
-            // 查找所有父标签
-            for (String tagId : userTags) {
-                collectParentTags(tagId, allEffectiveTags);
+
+                // 查找所有父标签
+                for (String tagId : userTags) {
+                    collectParentTags(tagId, allEffectiveTags);
                 }
             }
-            
+
             // 确保默认标签在结果中
             allEffectiveTags.add(DEFAULT_ORG_TAG);
-            
+
             List<String> result = new ArrayList<>(allEffectiveTags);
-            
+
             // 缓存结果
             if (!result.isEmpty()) {
                 redisTemplate.opsForList().rightPushAll(cacheKey, result.toArray());
                 redisTemplate.expire(cacheKey, CACHE_TTL_HOURS, TimeUnit.HOURS);
             }
-            
+
             return result;
         } catch (Exception e) {
             logger.error("Failed to get effective organization tags for user: {}", username, e);
@@ -184,7 +184,7 @@ public class OrgTagCacheService {
             return Collections.singletonList(DEFAULT_ORG_TAG);
         }
     }
-    
+
     /**
      * 递归收集标签的所有父标签
      */
@@ -200,7 +200,7 @@ public class OrgTagCacheService {
             logger.error("Error collecting parent tags for tag: {}", tagId, e);
         }
     }
-    
+
     /**
      * 删除用户有效标签缓存
      */
@@ -213,7 +213,7 @@ public class OrgTagCacheService {
             logger.error("Failed to delete effective organization tags cache for user: {}", username, e);
         }
     }
-    
+
     /**
      * 清除所有用户的有效标签缓存
      * 在组织标签结构变更时调用
@@ -229,4 +229,4 @@ public class OrgTagCacheService {
             logger.error("Failed to invalidate effective organization tags cache", e);
         }
     }
-} 
+}

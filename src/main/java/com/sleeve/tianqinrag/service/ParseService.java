@@ -33,13 +33,13 @@ public class ParseService {
 
     @Value("${file.parsing.parent-chunk-size:1048576}")
     private int parentChunkSize;
-    
+
     @Value("${file.parsing.buffer-size:8192}")
     private int bufferSize;
-    
+
     @Value("${file.parsing.max-memory-threshold:0.8}")
     private double maxMemoryThreshold;
-    
+
     public ParseService() {
         // 无需初始化，StandardTokenizer是静态方法
     }
@@ -60,7 +60,7 @@ public class ParseService {
             String userId, String orgTag, boolean isPublic) throws IOException, TikaException {
         logger.info("开始流式解析文件，fileMd5: {}, userId: {}, orgTag: {}, isPublic: {}",
                 fileMd5, userId, orgTag, isPublic);
-        
+
         checkMemoryThreshold();
 
         try (BufferedInputStream bufferedStream = new BufferedInputStream(fileStream, bufferSize)) {
@@ -96,24 +96,24 @@ public class ParseService {
         long totalMemory = runtime.totalMemory();
         long freeMemory = runtime.freeMemory();
         long usedMemory = totalMemory - freeMemory;
-        
+
         double memoryUsage = (double) usedMemory / maxMemory;
-        
+
         if (memoryUsage > maxMemoryThreshold) {
             logger.warn("内存使用率过高: {:.2f}%, 触发垃圾回收", memoryUsage * 100);
             System.gc();
-            
+
             // 重新检查
             usedMemory = runtime.totalMemory() - runtime.freeMemory();
             memoryUsage = (double) usedMemory / maxMemory;
-            
+
             if (memoryUsage > maxMemoryThreshold) {
-                throw new RuntimeException("内存不足，无法处理大文件。当前使用率: " + 
-                    String.format("%.2f%%", memoryUsage * 100));
+                throw new RuntimeException("内存不足，无法处理大文件。当前使用率: " +
+                        String.format("%.2f%%", memoryUsage * 100));
             }
         }
     }
-    
+
     /**
      * 内部流式内容处理器，实现了父子文档切分策略的核心逻辑。
      * Tika解析器会调用characters方法，当累积的文本达到"父块"大小时，
@@ -159,7 +159,8 @@ public class ParseService {
             List<String> childChunks = ParseService.this.splitTextIntoChunksWithSemantics(parentChunkText, chunkSize);
 
             // 2. 将子切片批量保存到数据库
-            this.savedChunkCount = ParseService.this.saveChildChunks(fileMd5, childChunks, userId, orgTag, isPublic, this.savedChunkCount);
+            this.savedChunkCount = ParseService.this.saveChildChunks(fileMd5, childChunks, userId, orgTag, isPublic,
+                    this.savedChunkCount);
 
             // 3. 清空缓冲区，为下一个父块做准备
             buffer.setLength(0);
@@ -286,39 +287,39 @@ public class ParseService {
      */
     private List<String> splitLongSentence(String sentence, int chunkSize) {
         List<String> chunks = new ArrayList<>();
-        
+
         try {
             // 使用HanLP StandardTokenizer进行分词
             List<Term> termList = StandardTokenizer.segment(sentence);
-            
+
             StringBuilder currentChunk = new StringBuilder();
             for (Term term : termList) {
                 String word = term.word;
-                
+
                 // 如果添加这个词会超过chunk大小限制，且当前chunk不为空
                 if (currentChunk.length() + word.length() > chunkSize && !currentChunk.isEmpty()) {
                     chunks.add(currentChunk.toString());
                     currentChunk = new StringBuilder();
                 }
-                
+
                 currentChunk.append(word);
             }
-            
+
             if (!currentChunk.isEmpty()) {
                 chunks.add(currentChunk.toString());
             }
-            
-            logger.debug("HanLP智能分词成功，原文长度: {}, 分词数: {}, 分块数: {}", 
+
+            logger.debug("HanLP智能分词成功，原文长度: {}, 分词数: {}, 分块数: {}",
                     sentence.length(), termList.size(), chunks.size());
-                    
+
         } catch (Exception e) {
             logger.warn("HanLP分词异常: {}, 使用字符分割作为备用方案", e.getMessage());
             chunks = splitByCharacters(sentence, chunkSize);
-         }
-        
+        }
+
         return chunks;
     }
-    
+
     /**
      * 备用方案：按字符分割
      */

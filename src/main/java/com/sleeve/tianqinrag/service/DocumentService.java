@@ -62,12 +62,12 @@ public class DocumentService {
     @Transactional
     public void deleteDocument(String fileMd5, String userId) {
         logger.info("开始删除文档: {}", fileMd5);
-        
+
         try {
             // 获取文件信息以获取文件名
             FileUpload fileUpload = fileUploadRepository.findByFileMd5AndUserId(fileMd5, userId)
                     .orElseThrow(() -> new RuntimeException("文件不存在"));
-            
+
             // 1. 删除Elasticsearch中的数据
             try {
                 elasticsearchService.deleteByFileMd5(fileMd5);
@@ -76,7 +76,7 @@ public class DocumentService {
                 logger.error("从Elasticsearch删除文档时出错: {}", fileMd5, e);
                 // 继续删除其他数据
             }
-            
+
             // 2. 删除MinIO中的文件（使用MD5作为对象路径）
             try {
                 String objectName = "merged/" + fileUpload.getFileMd5();
@@ -84,8 +84,7 @@ public class DocumentService {
                         RemoveObjectArgs.builder()
                                 .bucket("uploads")
                                 .object(objectName)
-                                .build()
-                );
+                                .build());
                 logger.info("成功从MinIO删除文件: {}", objectName);
             } catch (Exception e) {
                 logger.warn("使用MD5路径删除文件失败，尝试使用文件名路径: {}", fileMd5);
@@ -96,15 +95,14 @@ public class DocumentService {
                             RemoveObjectArgs.builder()
                                     .bucket("uploads")
                                     .object(oldObjectName)
-                                    .build()
-                    );
+                                    .build());
                     logger.info("使用旧路径成功从MinIO删除文件: {}", oldObjectName);
                 } catch (Exception ex) {
                     logger.error("从MinIO删除文件时出错（新旧路径都失败）: {}", fileMd5, ex);
                     // 继续删除其他数据
                 }
             }
-            
+
             // 3. 删除DocumentVector记录
             try {
                 documentVectorRepository.deleteByFileMd5(fileMd5);
@@ -113,37 +111,37 @@ public class DocumentService {
                 logger.error("删除文档向量记录时出错: {}", fileMd5, e);
                 // 继续删除其他数据
             }
-            
+
             // 4. 删除FileUpload记录
             fileUploadRepository.deleteByFileMd5(fileMd5);
             logger.info("成功删除文件上传记录: {}", fileMd5);
-            
+
             logger.info("文档删除完成: {}", fileMd5);
         } catch (Exception e) {
             logger.error("删除文档过程中发生错误: {}", fileMd5, e);
             throw new RuntimeException("删除文档失败: " + e.getMessage(), e);
         }
     }
-    
+
     /**
      * 获取用户可访问的所有文件列表
      * 包括用户自己的文件、公开文件和用户所属组织的文件（支持层级权限）
      *
-     * @param userId 用户ID
+     * @param userId  用户ID
      * @param orgTags 用户所属的组织标签（逗号分隔的字符串，仅供兼容性使用）
      * @return 用户可访问的文件列表
      */
     public List<FileUpload> getAccessibleFiles(String userId, String orgTags) {
         logger.info("获取用户可访问文件列表: userId={}", userId);
-        
+
         try {
             // 获取用户有效的组织标签（包含层级关系）
             User user = userRepository.findByUsername(userId)
-                .orElseThrow(() -> new RuntimeException("用户不存在: " + userId));
-            
+                    .orElseThrow(() -> new RuntimeException("用户不存在: " + userId));
+
             List<String> userEffectiveTags = orgTagCacheService.getUserEffectiveOrgTags(user.getUsername());
             logger.debug("用户有效组织标签: {}", userEffectiveTags);
-            
+
             // 使用有效标签查询文件
             List<FileUpload> files;
             if (userEffectiveTags.isEmpty()) {
@@ -155,7 +153,7 @@ public class DocumentService {
                 files = fileUploadRepository.findAccessibleFilesWithTags(userId, userEffectiveTags);
                 logger.debug("使用有效组织标签查询文件");
             }
-            
+
             logger.info("成功获取用户可访问文件列表: userId={}, fileCount={}", userId, files.size());
             return files;
         } catch (Exception e) {
@@ -163,7 +161,7 @@ public class DocumentService {
             throw new RuntimeException("获取可访问文件列表失败: " + e.getMessage(), e);
         }
     }
-    
+
     /**
      * 获取用户上传的所有文件列表
      *
@@ -172,7 +170,7 @@ public class DocumentService {
      */
     public List<FileUpload> getUserUploadedFiles(String userId) {
         logger.info("获取用户上传的文件列表: userId={}", userId);
-        
+
         try {
             List<FileUpload> files = fileUploadRepository.findByUserId(userId);
             logger.info("成功获取用户上传的文件列表: userId={}, fileCount={}", userId, files.size());
@@ -182,7 +180,7 @@ public class DocumentService {
             throw new RuntimeException("获取用户上传的文件列表失败: " + e.getMessage(), e);
         }
     }
-    
+
     /**
      * 生成文件下载链接
      * 
@@ -208,8 +206,7 @@ public class DocumentService {
                                 .bucket("uploads")
                                 .object(objectName)
                                 .expiry(3600)
-                                .build()
-                );
+                                .build());
                 logger.info("成功生成文件下载链接（新路径）: fileMd5={}, fileName={}, objectName={}",
                         fileMd5, fileUpload.getFileName(), objectName);
                 return presignedUrl;
@@ -223,8 +220,7 @@ public class DocumentService {
                                 .bucket("uploads")
                                 .object(oldObjectName)
                                 .expiry(3600)
-                                .build()
-                );
+                                .build());
                 logger.info("成功生成文件下载链接（旧路径）: fileMd5={}, fileName={}, objectName={}",
                         fileMd5, fileUpload.getFileName(), oldObjectName);
                 return presignedUrl;
@@ -234,11 +230,11 @@ public class DocumentService {
             return null;
         }
     }
-    
+
     /**
      * 获取文件预览内容
      * 
-     * @param fileMd5 文件MD5
+     * @param fileMd5  文件MD5
      * @param fileName 文件名
      * @return 文件预览内容，对于文本文件返回前几KB内容，非文本文件返回文件信息
      */
@@ -299,22 +295,21 @@ public class DocumentService {
                     }
 
                     logger.info("成功获取文本文件预览内容: fileMd5={}, 使用MD5路径={}, contentLength={}, 内容前50字符={}",
-                        fileMd5, usedNewPath, result.length(), result.substring(0, Math.min(50, result.length())));
+                            fileMd5, usedNewPath, result.length(), result.substring(0, Math.min(50, result.length())));
                     return result;
                 }
             } else {
                 // 对于非文本文件，返回文件信息
                 String fileInfo = String.format(
-                    "文件名: %s\n" +
-                    "文件大小: %s\n" +
-                    "文件类型: %s\n" +
-                    "上传时间: %s\n\n" +
-                    "此文件类型不支持预览，请下载后查看。",
-                    fileName,
-                    formatFileSize(fileUpload.getTotalSize()),
-                    fileExtension.toUpperCase(),
-                    fileUpload.getCreatedAt()
-                );
+                        "文件名: %s\n" +
+                                "文件大小: %s\n" +
+                                "文件类型: %s\n" +
+                                "上传时间: %s\n\n" +
+                                "此文件类型不支持预览，请下载后查看。",
+                        fileName,
+                        formatFileSize(fileUpload.getTotalSize()),
+                        fileExtension.toUpperCase(),
+                        fileUpload.getCreatedAt());
 
                 logger.info("返回非文本文件信息: fileMd5={}", fileMd5);
                 return fileInfo;
@@ -325,7 +320,7 @@ public class DocumentService {
             return "预览失败: " + e.getMessage();
         }
     }
-    
+
     /**
      * 获取文件扩展名
      */
@@ -336,27 +331,29 @@ public class DocumentService {
         }
         return fileName.substring(lastDotIndex + 1);
     }
-    
+
     /**
      * 判断是否为文本文件
      */
     private boolean isTextFile(String extension) {
         String[] textExtensions = {
-            "txt", "md", "doc", "docx", "pdf", "html", "htm", "xml", "json", 
-            "csv", "log", "java", "js", "ts", "py", "cpp", "c", "h", "css", 
-            "scss", "less", "sql", "yml", "yaml", "properties", "conf", "config"
+                "txt", "md", "doc", "docx", "pdf", "html", "htm", "xml", "json",
+                "csv", "log", "java", "js", "ts", "py", "cpp", "c", "h", "css",
+                "scss", "less", "sql", "yml", "yaml", "properties", "conf", "config"
         };
-        
+
         return Arrays.stream(textExtensions)
                 .anyMatch(ext -> ext.equalsIgnoreCase(extension));
     }
-    
+
     /**
      * 格式化文件大小
      */
     private String formatFileSize(Long size) {
-        if (size == null) return "未知";
-        
+        if (size == null) {
+            return "未知";
+        }
+
         if (size < 1024) {
             return size + " B";
         } else if (size < 1024 * 1024) {
@@ -367,4 +364,4 @@ public class DocumentService {
             return String.format("%.1f GB", size / (1024.0 * 1024.0 * 1024.0));
         }
     }
-} 
+}
