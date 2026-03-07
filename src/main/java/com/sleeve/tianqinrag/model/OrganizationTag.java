@@ -33,4 +33,4 @@ public class OrganizationTag {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt; // 更新时间
-} 
+}

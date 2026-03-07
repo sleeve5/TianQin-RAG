@@ -44,4 +44,3 @@ public class ChunkInfo {
      */
     private String storagePath;
 }
-

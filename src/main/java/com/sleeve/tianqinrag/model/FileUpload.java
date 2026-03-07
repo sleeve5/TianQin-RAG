@@ -50,7 +50,7 @@ public class FileUpload {
      */
     @Column(name = "user_id", length = 64, nullable = false)
     private String userId;
-    
+
     /**
      * 文件所属组织标签
      * 用于标识文件归属的组织，支持基于组织标签的权限控制
@@ -79,4 +79,3 @@ public class FileUpload {
     @UpdateTimestamp
     private LocalDateTime mergedAt;
 }
-
