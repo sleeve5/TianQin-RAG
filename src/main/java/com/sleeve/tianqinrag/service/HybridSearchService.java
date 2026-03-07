@@ -120,7 +120,7 @@ public class HybridSearchService {
                         .windowSize(recallK)
                         .query(rq -> rq
                                 .queryWeight(0.2d) // 保留部分 KNN 分
-                                .rescoreQueryWeight(1.0d) // BM25 主导
+                                .rescoreQueryWeight(0.8d) // BM25 主导
                                 .query(rqq -> rqq.match(m -> m
                                         .field("textContent")
                                         .query(query)
