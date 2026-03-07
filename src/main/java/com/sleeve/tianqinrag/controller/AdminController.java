@@ -36,10 +36,10 @@ public class AdminController {
 
     @Autowired
     private UserService userService;
-    
+
     @Autowired
     private OrganizationTagRepository organizationTagRepository;
-    
+
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
@@ -59,17 +59,17 @@ public class AdminController {
         try {
             adminUsername = jwtUtils.extractUsernameFromToken(token.replace("Bearer ", ""));
             User admin = validateAdmin(adminUsername);
-            
+
             LogUtils.logBusiness("ADMIN_GET_ALL_USERS", adminUsername, "管理员开始获取所有用户列表");
-            
+
             List<User> users = userRepository.findAll();
             // 移除敏感信息
             users.forEach(user -> user.setPassword(null));
-            
+
             LogUtils.logUserOperation(adminUsername, "ADMIN_GET_ALL_USERS", "user_list", "SUCCESS");
             LogUtils.logBusiness("ADMIN_GET_ALL_USERS", adminUsername, "成功获取用户列表，用户数量: %d", users.size());
             monitor.end("获取用户列表成功");
-            
+
             return ResponseEntity.ok(Map.of("code", 200, "message", "Get all users successful", "data", users));
         } catch (Exception e) {
             LogUtils.logBusinessError("ADMIN_GET_ALL_USERS", adminUsername, "获取所有用户失败", e);
@@ -87,14 +87,14 @@ public class AdminController {
             @RequestHeader("Authorization") String token,
             @RequestParam("file") MultipartFile file,
             @RequestParam("description") String description) {
-        
+
         String adminUsername = jwtUtils.extractUsernameFromToken(token.replace("Bearer ", ""));
         validateAdmin(adminUsername);
-        
+
         try {
             // 这里应该调用知识库管理服务来处理文档
             // knowledgeService.addDocument(file, description);
-            
+
             Map<String, String> response = new HashMap<>();
             response.put("message", "文档已成功添加到知识库");
             return ResponseEntity.ok(response);
@@ -112,14 +112,14 @@ public class AdminController {
     public ResponseEntity<?> deleteKnowledgeDocument(
             @RequestHeader("Authorization") String token,
             @PathVariable("documentId") String documentId) {
-        
+
         String adminUsername = jwtUtils.extractUsernameFromToken(token.replace("Bearer ", ""));
         validateAdmin(adminUsername);
-        
+
         try {
             // 这里应该调用知识库管理服务来删除文档
             // knowledgeService.deleteDocument(documentId);
-            
+
             Map<String, String> response = new HashMap<>();
             response.put("message", "文档已成功从知识库中删除");
             return ResponseEntity.ok(response);
@@ -137,11 +137,11 @@ public class AdminController {
     public ResponseEntity<?> getSystemStatus(@RequestHeader("Authorization") String token) {
         String adminUsername = jwtUtils.extractUsernameFromToken(token.replace("Bearer ", ""));
         validateAdmin(adminUsername);
-        
+
         try {
             // 这里应该调用系统监控服务来获取系统状态
             // SystemStatus status = monitoringService.getSystemStatus();
-            
+
             // 模拟系统状态数据
             Map<String, Object> status = new HashMap<>();
             status.put("cpu_usage", "30%");
@@ -150,7 +150,7 @@ public class AdminController {
             status.put("active_users", 15);
             status.put("total_documents", 250);
             status.put("total_conversations", 1200);
-            
+
             return ResponseEntity.ok(Map.of("data", status));
         } catch (Exception e) {
             LogUtils.logBusinessError("ADMIN_GET_SYSTEM_STATUS", adminUsername, "获取系统状态失败", e);
@@ -168,30 +168,28 @@ public class AdminController {
             @RequestParam(required = false) String username,
             @RequestParam(required = false) String start_date,
             @RequestParam(required = false) String end_date) {
-        
+
         String adminUsername = jwtUtils.extractUsernameFromToken(token.replace("Bearer ", ""));
         validateAdmin(adminUsername);
-        
+
         try {
             // 这里应该调用用户活动监控服务来获取活动日志
-            // List<UserActivity> activities = activityService.getUserActivities(username, startDate, endDate);
-            
+            // List<UserActivity> activities = activityService.getUserActivities(username,
+            // startDate, endDate);
+
             // 模拟用户活动数据
             List<Map<String, Object>> activities = List.of(
-                Map.of(
-                    "username", "user1",
-                    "action", "LOGIN",
-                    "timestamp", "2023-03-01T10:15:30",
-                    "ip_address", "192.168.1.100"
-                ),
-                Map.of(
-                    "username", "user2",
-                    "action", "UPLOAD_FILE",
-                    "timestamp", "2023-03-01T11:20:45",
-                    "ip_address", "192.168.1.101"
-                )
-            );
-            
+                    Map.of(
+                            "username", "user1",
+                            "action", "LOGIN",
+                            "timestamp", "2023-03-01T10:15:30",
+                            "ip_address", "192.168.1.100"),
+                    Map.of(
+                            "username", "user2",
+                            "action", "UPLOAD_FILE",
+                            "timestamp", "2023-03-01T11:20:45",
+                            "ip_address", "192.168.1.101"));
+
             return ResponseEntity.ok(Map.of("data", activities));
         } catch (Exception e) {
             LogUtils.logBusinessError("ADMIN_GET_USER_ACTIVITIES", adminUsername, "获取用户活动失败", e);
@@ -199,7 +197,7 @@ public class AdminController {
                     .body(Map.of("error", "获取用户活动失败: " + e.getMessage()));
         }
     }
-    
+
     /**
      * 创建管理员用户
      */
@@ -207,23 +205,24 @@ public class AdminController {
     public ResponseEntity<?> createAdminUser(
             @RequestHeader("Authorization") String token,
             @RequestBody AdminUserRequest request) {
-        
+
         String adminUsername = jwtUtils.extractUsernameFromToken(token.replace("Bearer ", ""));
         validateAdmin(adminUsername);
-        
+
         try {
             userService.createAdminUser(request.username(), request.password(), adminUsername);
             return ResponseEntity.ok(Map.of("code", 200, "message", "管理员用户创建成功"));
         } catch (CustomException e) {
             LogUtils.logBusinessError("ADMIN_CREATE_ADMIN_USER", adminUsername, "创建管理员用户失败: %s", e, e.getMessage());
-            return ResponseEntity.status(e.getStatus()).body(Map.of("code", e.getStatus().value(), "message", e.getMessage()));
+            return ResponseEntity.status(e.getStatus())
+                    .body(Map.of("code", e.getStatus().value(), "message", e.getMessage()));
         } catch (Exception e) {
             LogUtils.logBusinessError("ADMIN_CREATE_ADMIN_USER", adminUsername, "创建管理员用户异常: %s", e, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("code", 500, "message", "创建管理员用户失败: " + e.getMessage()));
         }
     }
-    
+
     /**
      * 创建组织标签
      */
@@ -231,29 +230,29 @@ public class AdminController {
     public ResponseEntity<?> createOrganizationTag(
             @RequestHeader("Authorization") String token,
             @RequestBody OrgTagRequest request) {
-        
+
         String adminUsername = jwtUtils.extractUsernameFromToken(token.replace("Bearer ", ""));
         validateAdmin(adminUsername);
-        
+
         try {
             OrganizationTag tag = userService.createOrganizationTag(
-                request.tagId(), 
-                request.name(), 
-                request.description(), 
-                request.parentTag(), 
-                adminUsername
-            );
+                    request.tagId(),
+                    request.name(),
+                    request.description(),
+                    request.parentTag(),
+                    adminUsername);
             return ResponseEntity.ok(Map.of("code", 200, "message", "组织标签创建成功", "data", tag));
         } catch (CustomException e) {
             LogUtils.logBusinessError("ADMIN_CREATE_ORG_TAG", adminUsername, "创建组织标签失败: %s", e, e.getMessage());
-            return ResponseEntity.status(e.getStatus()).body(Map.of("code", e.getStatus().value(), "message", e.getMessage()));
+            return ResponseEntity.status(e.getStatus())
+                    .body(Map.of("code", e.getStatus().value(), "message", e.getMessage()));
         } catch (Exception e) {
             LogUtils.logBusinessError("ADMIN_CREATE_ORG_TAG", adminUsername, "创建组织标签异常: %s", e, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("code", 500, "message", "创建组织标签失败: " + e.getMessage()));
         }
     }
-    
+
     /**
      * 获取所有组织标签
      */
@@ -261,7 +260,7 @@ public class AdminController {
     public ResponseEntity<?> getAllOrganizationTags(@RequestHeader("Authorization") String token) {
         String adminUsername = jwtUtils.extractUsernameFromToken(token.replace("Bearer ", ""));
         validateAdmin(adminUsername);
-        
+
         try {
             List<OrganizationTag> tags = organizationTagRepository.findAll();
             return ResponseEntity.ok(Map.of("code", 200, "message", "获取组织标签成功", "data", tags));
@@ -271,7 +270,7 @@ public class AdminController {
                     .body(Map.of("code", 500, "message", "获取组织标签失败: " + e.getMessage()));
         }
     }
-    
+
     /**
      * 为用户分配组织标签
      */
@@ -280,23 +279,24 @@ public class AdminController {
             @RequestHeader("Authorization") String token,
             @PathVariable Long userId,
             @RequestBody AssignOrgTagsRequest request) {
-        
+
         String adminUsername = jwtUtils.extractUsernameFromToken(token.replace("Bearer ", ""));
         validateAdmin(adminUsername);
-        
+
         try {
             userService.assignOrgTagsToUser(userId, request.orgTags(), adminUsername);
             return ResponseEntity.ok(Map.of("code", 200, "message", "组织标签分配成功"));
         } catch (CustomException e) {
             LogUtils.logBusinessError("ADMIN_ASSIGN_ORG_TAGS", adminUsername, "分配组织标签失败: %s", e, e.getMessage());
-            return ResponseEntity.status(e.getStatus()).body(Map.of("code", e.getStatus().value(), "message", e.getMessage()));
+            return ResponseEntity.status(e.getStatus())
+                    .body(Map.of("code", e.getStatus().value(), "message", e.getMessage()));
         } catch (Exception e) {
             LogUtils.logBusinessError("ADMIN_ASSIGN_ORG_TAGS", adminUsername, "分配组织标签异常: %s", e, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("code", 500, "message", "分配组织标签失败: " + e.getMessage()));
         }
     }
-    
+
     /**
      * 获取组织标签树结构
      */
@@ -304,21 +304,20 @@ public class AdminController {
     public ResponseEntity<?> getOrganizationTagTree(@RequestHeader("Authorization") String token) {
         String adminUsername = jwtUtils.extractUsernameFromToken(token.replace("Bearer ", ""));
         validateAdmin(adminUsername);
-        
+
         try {
             List<Map<String, Object>> tagTree = userService.getOrganizationTagTree();
             return ResponseEntity.ok(Map.of(
-                "code", 200, 
-                "message", "获取组织标签树成功", 
-                "data", tagTree
-            ));
+                    "code", 200,
+                    "message", "获取组织标签树成功",
+                    "data", tagTree));
         } catch (Exception e) {
             LogUtils.logBusinessError("ADMIN_GET_ORG_TAG_TREE", adminUsername, "获取组织标签树失败", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("code", 500, "message", "获取组织标签树失败: " + e.getMessage()));
         }
     }
-    
+
     /**
      * 更新组织标签
      */
@@ -327,33 +326,32 @@ public class AdminController {
             @RequestHeader("Authorization") String token,
             @PathVariable String tagId,
             @RequestBody OrgTagUpdateRequest request) {
-        
+
         String adminUsername = jwtUtils.extractUsernameFromToken(token.replace("Bearer ", ""));
         validateAdmin(adminUsername);
-        
+
         try {
             OrganizationTag updatedTag = userService.updateOrganizationTag(
-                tagId, 
-                request.name(), 
-                request.description(), 
-                request.parentTag(), 
-                adminUsername
-            );
+                    tagId,
+                    request.name(),
+                    request.description(),
+                    request.parentTag(),
+                    adminUsername);
             return ResponseEntity.ok(Map.of(
-                "code", 200, 
-                "message", "组织标签更新成功", 
-                "data", updatedTag
-            ));
+                    "code", 200,
+                    "message", "组织标签更新成功",
+                    "data", updatedTag));
         } catch (CustomException e) {
             LogUtils.logBusinessError("ADMIN_UPDATE_ORG_TAG", adminUsername, "更新组织标签失败: %s", e, e.getMessage());
-            return ResponseEntity.status(e.getStatus()).body(Map.of("code", e.getStatus().value(), "message", e.getMessage()));
+            return ResponseEntity.status(e.getStatus())
+                    .body(Map.of("code", e.getStatus().value(), "message", e.getMessage()));
         } catch (Exception e) {
             LogUtils.logBusinessError("ADMIN_UPDATE_ORG_TAG", adminUsername, "更新组织标签异常: %s", e, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("code", 500, "message", "更新组织标签失败: " + e.getMessage()));
         }
     }
-    
+
     /**
      * 删除组织标签
      */
@@ -361,26 +359,26 @@ public class AdminController {
     public ResponseEntity<?> deleteOrganizationTag(
             @RequestHeader("Authorization") String token,
             @PathVariable String tagId) {
-        
+
         String adminUsername = jwtUtils.extractUsernameFromToken(token.replace("Bearer ", ""));
         validateAdmin(adminUsername);
-        
+
         try {
             userService.deleteOrganizationTag(tagId, adminUsername);
             return ResponseEntity.ok(Map.of(
-                "code", 200, 
-                "message", "组织标签删除成功"
-            ));
+                    "code", 200,
+                    "message", "组织标签删除成功"));
         } catch (CustomException e) {
             LogUtils.logBusinessError("ADMIN_DELETE_ORG_TAG", adminUsername, "删除组织标签失败: %s", e, e.getMessage());
-            return ResponseEntity.status(e.getStatus()).body(Map.of("code", e.getStatus().value(), "message", e.getMessage()));
+            return ResponseEntity.status(e.getStatus())
+                    .body(Map.of("code", e.getStatus().value(), "message", e.getMessage()));
         } catch (Exception e) {
             LogUtils.logBusinessError("ADMIN_DELETE_ORG_TAG", adminUsername, "删除组织标签异常: %s", e, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("code", 500, "message", "删除组织标签失败: " + e.getMessage()));
         }
     }
-    
+
     /**
      * 获取用户列表
      */
@@ -392,27 +390,27 @@ public class AdminController {
             @RequestParam(required = false) Integer status,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
-        
+
         String adminUsername = jwtUtils.extractUsernameFromToken(token.replace("Bearer ", ""));
         validateAdmin(adminUsername);
-        
+
         try {
             Map<String, Object> usersData = userService.getUserList(keyword, orgTag, status, page, size);
             return ResponseEntity.ok(Map.of(
-                "code", 200, 
-                "message", "获取用户列表成功", 
-                "data", usersData
-            ));
+                    "code", 200,
+                    "message", "获取用户列表成功",
+                    "data", usersData));
         } catch (CustomException e) {
             LogUtils.logBusinessError("ADMIN_GET_USER_LIST", adminUsername, "获取用户列表失败: %s", e, e.getMessage());
-            return ResponseEntity.status(e.getStatus()).body(Map.of("code", e.getStatus().value(), "message", e.getMessage()));
+            return ResponseEntity.status(e.getStatus())
+                    .body(Map.of("code", e.getStatus().value(), "message", e.getMessage()));
         } catch (Exception e) {
             LogUtils.logBusinessError("ADMIN_GET_USER_LIST", adminUsername, "获取用户列表异常: %s", e, e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("code", 500, "message", "获取用户列表失败: " + e.getMessage()));
         }
     }
-    
+
     /**
      * 管理员查询所有对话历史
      */
@@ -422,18 +420,19 @@ public class AdminController {
             @RequestParam(required = false) String userid,
             @RequestParam(required = false) String start_date,
             @RequestParam(required = false) String end_date) {
-        
+
         LogUtils.PerformanceMonitor monitor = LogUtils.startPerformanceMonitor("ADMIN_GET_ALL_CONVERSATIONS");
         String adminUsername = null;
         try {
             // 验证管理员权限
             adminUsername = jwtUtils.extractUsernameFromToken(token.replace("Bearer ", ""));
             User admin = validateAdmin(adminUsername);
-            
-            LogUtils.logBusiness("ADMIN_GET_ALL_CONVERSATIONS", adminUsername, "管理员开始查询对话历史，目标用户ID: %s, 时间范围: %s 到 %s", userid, start_date, end_date);
-            
+
+            LogUtils.logBusiness("ADMIN_GET_ALL_CONVERSATIONS", adminUsername, "管理员开始查询对话历史，目标用户ID: %s, 时间范围: %s 到 %s",
+                    userid, start_date, end_date);
+
             List<Map<String, Object>> allConversations = new ArrayList<>();
-            
+
             // 如果指定了userid，先验证用户是否存在
             String targetUsername = null;
             if (userid != null && !userid.isEmpty()) {
@@ -442,7 +441,8 @@ public class AdminController {
                     Optional<User> targetUser = userRepository.findById(userIdLong);
                     if (targetUser.isPresent()) {
                         targetUsername = targetUser.get().getUsername();
-                        LogUtils.logBusiness("ADMIN_GET_ALL_CONVERSATIONS", adminUsername, "找到目标用户: ID=%s, 用户名=%s", userid, targetUsername);
+                        LogUtils.logBusiness("ADMIN_GET_ALL_CONVERSATIONS", adminUsername, "找到目标用户: ID=%s, 用户名=%s",
+                                userid, targetUsername);
                     } else {
                         LogUtils.logBusiness("ADMIN_GET_ALL_CONVERSATIONS", adminUsername, "目标用户ID不存在: %s", userid);
                         return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -454,17 +454,17 @@ public class AdminController {
                             .body(Map.of("code", 400, "message", "无效的用户ID格式"));
                 }
             }
-            
+
             // 获取所有Redis键中以"user:"开头的键
             Set<String> userKeys = redisTemplate.keys("user:*:current_conversation");
-            
+
             if (userKeys != null && !userKeys.isEmpty()) {
                 for (String userKey : userKeys) {
                     String conversationId = redisTemplate.opsForValue().get(userKey);
                     if (conversationId != null) {
                         // 提取用户ID
                         String redisUserId = userKey.replace("user:", "").replace(":current_conversation", "");
-                        
+
                         // 如果指定了userid，只查询该用户的对话
                         if (userid != null && !userid.isEmpty()) {
                             // 检查Redis中的用户ID是否匹配（可能是数字ID或用户名）
@@ -472,7 +472,7 @@ public class AdminController {
                                 continue;
                             }
                         }
-                        
+
                         // 获取对话内容，使用实际的用户名而不是Redis中的ID
                         String conversationKey = "conversation:" + conversationId;
                         String json = redisTemplate.opsForValue().get(conversationKey);
@@ -483,40 +483,47 @@ public class AdminController {
                     }
                 }
             }
-            
-            LogUtils.logBusiness("ADMIN_GET_ALL_CONVERSATIONS", adminUsername, "管理员查询完成，共获取到 %d 条对话记录", allConversations.size());
+
+            LogUtils.logBusiness("ADMIN_GET_ALL_CONVERSATIONS", adminUsername, "管理员查询完成，共获取到 %d 条对话记录",
+                    allConversations.size());
             LogUtils.logUserOperation(adminUsername, "ADMIN_GET_ALL_CONVERSATIONS", "conversation_history", "SUCCESS");
             monitor.end("管理员查询对话历史成功");
-            
+
             // 构建统一响应格式
             Map<String, Object> response = new HashMap<>();
             response.put("code", 200);
-            response.put("message", "获取对话历史成功");  
+            response.put("message", "获取对话历史成功");
             response.put("data", allConversations);
             return ResponseEntity.ok().body(response);
-            
+
         } catch (CustomException e) {
-            LogUtils.logBusinessError("ADMIN_GET_ALL_CONVERSATIONS", adminUsername, "管理员获取对话历史失败: %s", e, e.getMessage());
+            LogUtils.logBusinessError("ADMIN_GET_ALL_CONVERSATIONS", adminUsername, "管理员获取对话历史失败: %s", e,
+                    e.getMessage());
             monitor.end("管理员获取对话历史失败: " + e.getMessage());
-            return ResponseEntity.status(e.getStatus()).body(Map.of("code", e.getStatus().value(), "message", e.getMessage()));
+            return ResponseEntity.status(e.getStatus())
+                    .body(Map.of("code", e.getStatus().value(), "message", e.getMessage()));
         } catch (Exception e) {
-            LogUtils.logBusinessError("ADMIN_GET_ALL_CONVERSATIONS", adminUsername, "管理员获取对话历史异常: %s", e, e.getMessage());
+            LogUtils.logBusinessError("ADMIN_GET_ALL_CONVERSATIONS", adminUsername, "管理员获取对话历史异常: %s", e,
+                    e.getMessage());
             monitor.end("管理员获取对话历史异常: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("code", 500, "message", "服务器内部错误: " + e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("code", 500, "message", "服务器内部错误: " + e.getMessage()));
         }
     }
-    
+
     /**
      * 处理Redis中的对话数据
      */
-    private void processRedisConversation(String json, List<Map<String, Object>> targetList, String username, String startDate, String endDate) throws JsonProcessingException {
-        List<Map<String, String>> history = objectMapper.readValue(json, 
-                new TypeReference<List<Map<String, String>>>() {});
-        
+    private void processRedisConversation(String json, List<Map<String, Object>> targetList, String username,
+            String startDate, String endDate) throws JsonProcessingException {
+        List<Map<String, String>> history = objectMapper.readValue(json,
+                new TypeReference<List<Map<String, String>>>() {
+                });
+
         // 解析时间范围
         java.time.LocalDateTime startDateTime = null;
         java.time.LocalDateTime endDateTime = null;
-        
+
         if (startDate != null && !startDate.trim().isEmpty()) {
             try {
                 startDateTime = parseDateTime(startDate);
@@ -524,7 +531,7 @@ public class AdminController {
                 LogUtils.logBusinessError("ADMIN_GET_ALL_CONVERSATIONS", username, "起始时间解析失败: %s", e, startDate);
             }
         }
-        
+
         if (endDate != null && !endDate.trim().isEmpty()) {
             try {
                 endDateTime = parseDateTime(endDate);
@@ -532,18 +539,18 @@ public class AdminController {
                 LogUtils.logBusinessError("ADMIN_GET_ALL_CONVERSATIONS", username, "结束时间解析失败: %s", e, endDate);
             }
         }
-        
+
         // 将对话转换为前端需要的格式，使用存储的时间戳并添加用户名
         for (Map<String, String> message : history) {
             String messageTimestamp = message.getOrDefault("timestamp", "未知时间");
-            
+
             // 时间过滤
             if (startDateTime != null || endDateTime != null) {
                 if (!"未知时间".equals(messageTimestamp)) {
                     try {
-                        java.time.LocalDateTime messageDateTime = java.time.LocalDateTime.parse(messageTimestamp, 
-                            java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
-                        
+                        java.time.LocalDateTime messageDateTime = java.time.LocalDateTime.parse(messageTimestamp,
+                                java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+
                         // 检查是否在时间范围内
                         if (startDateTime != null && messageDateTime.isBefore(startDateTime)) {
                             continue; // 跳过早于起始时间的消息
@@ -553,7 +560,8 @@ public class AdminController {
                         }
                     } catch (Exception e) {
                         // 时间戳格式不正确，跳过过滤（包含所有消息）
-                        LogUtils.logBusinessError("ADMIN_GET_ALL_CONVERSATIONS", username, "消息时间戳格式错误: %s", e, messageTimestamp);
+                        LogUtils.logBusinessError("ADMIN_GET_ALL_CONVERSATIONS", username, "消息时间戳格式错误: %s", e,
+                                messageTimestamp);
                     }
                 }
                 // 如果是"未知时间"且设置了时间过滤，跳过该消息
@@ -561,7 +569,7 @@ public class AdminController {
                     continue;
                 }
             }
-            
+
             Map<String, Object> messageWithMetadata = new HashMap<>();
             messageWithMetadata.put("role", message.get("role"));
             messageWithMetadata.put("content", message.get("content"));
@@ -570,7 +578,7 @@ public class AdminController {
             targetList.add(messageWithMetadata);
         }
     }
-    
+
     /**
      * 解析日期时间字符串，支持多种格式
      */
@@ -578,7 +586,7 @@ public class AdminController {
         if (dateTimeStr == null || dateTimeStr.trim().isEmpty()) {
             return null;
         }
-        
+
         try {
             // 尝试标准格式解析 (2023-01-01T12:00:00)
             return java.time.LocalDateTime.parse(dateTimeStr);
@@ -588,19 +596,20 @@ public class AdminController {
                 if (dateTimeStr.length() == 16) {
                     return java.time.LocalDateTime.parse(dateTimeStr + ":00");
                 }
-                
+
                 // 尝试解析不带分钟和秒的格式 (2023-01-01T12)
                 if (dateTimeStr.length() == 13) {
                     return java.time.LocalDateTime.parse(dateTimeStr + ":00:00");
                 }
-                
+
                 // 尝试解析日期格式 (2023-01-01)
                 if (dateTimeStr.length() == 10) {
                     return java.time.LocalDateTime.parse(dateTimeStr + "T00:00:00");
                 }
-                
+
                 // 如果以上都失败，尝试使用自定义格式解析
-                java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+                java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter
+                        .ofPattern("yyyy-MM-dd'T'HH:mm");
                 return java.time.LocalDateTime.parse(dateTimeStr, formatter);
             } catch (Exception e2) {
                 LogUtils.logBusinessError("PARSE_DATETIME", "system", "无法解析日期时间: %s", e2, dateTimeStr);
@@ -608,7 +617,7 @@ public class AdminController {
             }
         }
     }
-    
+
     /**
      * 验证用户是否为管理员
      */
@@ -616,10 +625,10 @@ public class AdminController {
         if (username == null || username.isEmpty()) {
             throw new CustomException("Invalid token", HttpStatus.UNAUTHORIZED);
         }
-        
+
         User admin = userRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
-        
+
         if (admin.getRole() != User.Role.ADMIN) {
             throw new CustomException("Unauthorized access: Admin role required", HttpStatus.FORBIDDEN);
         }
@@ -632,7 +641,7 @@ public class AdminController {
      * 旧路径: merged/{fileName}
      * 新路径: merged/{fileMd5}
      *
-     * @param token JWT token
+     * @param token    JWT token
      * @param adminKey 管理员密钥（简单验证）
      * @return 迁移报告
      */
@@ -662,8 +671,8 @@ public class AdminController {
             MinioMigrationUtil.MigrationReport report = migrationUtil.migrateAllFiles();
 
             LogUtils.logBusiness("MIGRATE_MINIO", adminUsername,
-                "迁移完成: 成功=%d, 跳过=%d, 失败=%d",
-                report.successCount, report.skipCount, report.errorCount);
+                    "迁移完成: 成功=%d, 跳过=%d, 失败=%d",
+                    report.successCount, report.skipCount, report.errorCount);
 
             monitor.end("MinIO文件迁移完成");
 
@@ -671,11 +680,10 @@ public class AdminController {
             response.put("code", 200);
             response.put("message", "迁移完成");
             response.put("data", Map.of(
-                "successCount", report.successCount,
-                "skipCount", report.skipCount,
-                "errorCount", report.errorCount,
-                "errors", report.getErrors()
-            ));
+                    "successCount", report.successCount,
+                    "skipCount", report.skipCount,
+                    "errorCount", report.errorCount,
+                    "errors", report.getErrors()));
             return ResponseEntity.ok(response);
 
         } catch (CustomException e) {
@@ -700,7 +708,7 @@ public class AdminController {
     /**
      * 清空所有数据（危险操作，仅用于测试环境）
      *
-     * @param token JWT token
+     * @param token    JWT token
      * @param adminKey 管理员密钥
      * @return 操作结果
      */
@@ -761,17 +769,21 @@ public class AdminController {
 /**
  * 管理员用户请求体
  */
-record AdminUserRequest(String username, String password) {}
+record AdminUserRequest(String username, String password) {
+}
 
 /**
  * 组织标签请求体
  */
-record OrgTagRequest(String tagId, String name, String description, String parentTag) {}
+record OrgTagRequest(String tagId, String name, String description, String parentTag) {
+}
 
 /**
  * 分配组织标签请求体
  */
-record AssignOrgTagsRequest(List<String> orgTags) {}
+record AssignOrgTagsRequest(List<String> orgTags) {
+}
 
 // 添加组织标签更新请求记录类
-record OrgTagUpdateRequest(String name, String description, String parentTag) {} 
+record OrgTagUpdateRequest(String name, String description, String parentTag) {
+}
