@@ -63,4 +63,4 @@ public class AdminUserInitializer implements CommandLineRunner {
             throw new RuntimeException("无法创建管理员账号", e);
         }
     }
-} 
+}

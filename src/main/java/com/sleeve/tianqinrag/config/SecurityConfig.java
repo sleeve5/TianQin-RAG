@@ -24,7 +24,7 @@ public class SecurityConfig {
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
-    
+
     @Autowired
     private OrgTagAuthorizationFilter orgTagAuthorizationFilter;
 
@@ -44,7 +44,9 @@ public class SecurityConfig {
                     // 配置请求的授权规则
                     .authorizeHttpRequests(authorize -> authorize
                             // 允许静态资源访问
-                            .requestMatchers("/", "/test.html", "/static/test.html", "/static/**", "/*.js", "/*.css", "/*.ico").permitAll()
+                            .requestMatchers("/", "/test.html", "/static/test.html", "/static/**", "/*.js", "/*.css",
+                                    "/*.ico")
+                            .permitAll()
                             // 允许 WebSocket 连接
                             .requestMatchers("/chat/**", "/ws/**").permitAll()
                             // 允许登录注册接口
@@ -52,7 +54,9 @@ public class SecurityConfig {
                             // 允许测试接口
                             .requestMatchers("/api/v1/test/**").permitAll()
                             // 文件上传和下载相关接口 - 普通用户和管理员都可访问
-                            .requestMatchers("/api/v1/upload/**", "/api/v1/parse", "/api/v1/documents/download", "/api/v1/documents/preview").hasAnyRole("USER", "ADMIN")
+                            .requestMatchers("/api/v1/upload/**", "/api/v1/parse", "/api/v1/documents/download",
+                                    "/api/v1/documents/preview")
+                            .hasAnyRole("USER", "ADMIN")
                             // 对话历史相关接口 - 用户只能查看自己的历史，管理员可以查看所有
                             .requestMatchers("/api/v1/users/conversation/**").hasAnyRole("USER", "ADMIN")
                             // 搜索接口 - 普通用户和管理员都可访问
@@ -86,4 +90,3 @@ public class SecurityConfig {
         }
     }
 }
-

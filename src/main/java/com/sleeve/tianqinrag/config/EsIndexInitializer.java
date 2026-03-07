@@ -33,7 +33,8 @@ public class EsIndexInitializer implements CommandLineRunner {
             initializeIndex();
         } catch (Exception exception) {
             // 特别处理连接关闭异常，尝试重新连接
-            if (exception instanceof ConnectionClosedException || (exception.getCause() != null && exception.getCause() instanceof ConnectionClosedException)) {
+            if (exception instanceof ConnectionClosedException
+                    || (exception.getCause() != null && exception.getCause() instanceof ConnectionClosedException)) {
                 logger.error("Elasticsearch连接已关闭，等待5秒后重试...");
                 try {
                     Thread.sleep(5000); // 等待5秒后重试
@@ -51,6 +52,7 @@ public class EsIndexInitializer implements CommandLineRunner {
 
     /**
      * 初始化索引的核心逻辑
+     * 
      * @throws Exception
      */
     private void initializeIndex() throws Exception {
@@ -65,6 +67,7 @@ public class EsIndexInitializer implements CommandLineRunner {
 
     /**
      * 创建索引
+     * 
      * @throws Exception
      */
     private void createIndex() throws Exception {

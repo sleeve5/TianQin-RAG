@@ -18,7 +18,6 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 
-
 // Elasticsearch客户端配置类
 @Configuration
 public class EsConfig {
@@ -66,8 +65,7 @@ public class EsConfig {
 
         // 创建传输层
         ElasticsearchTransport transport = new RestClientTransport(
-                restClient, new JacksonJsonpMapper()
-        );
+                restClient, new JacksonJsonpMapper());
 
         // 返回高级客户端
         return new ElasticsearchClient(transport);

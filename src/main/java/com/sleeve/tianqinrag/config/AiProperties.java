@@ -36,4 +36,4 @@ public class AiProperties {
         /** nucleus top-p */
         private Double topP = 0.9;
     }
-} 
+}

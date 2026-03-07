@@ -28,10 +28,11 @@ public class WebConfig implements WebMvcConfigurer {
         // 配置静态资源处理
         registry.addResourceHandler("/static/**")
                 .addResourceLocations("classpath:/static/");
-        
+
         // 添加根路径的静态资源处理
         registry.addResourceHandler("/**")
-                .addResourceLocations("classpath:/static/", "classpath:/public/", "classpath:/resources/", "classpath:/META-INF/resources/");
+                .addResourceLocations("classpath:/static/", "classpath:/public/", "classpath:/resources/",
+                        "classpath:/META-INF/resources/");
     }
 
     @Override
@@ -51,17 +52,16 @@ public class WebConfig implements WebMvcConfigurer {
         StringHttpMessageConverter stringConverter = new StringHttpMessageConverter(StandardCharsets.UTF_8);
         stringConverter.setWriteAcceptCharset(false); // 避免在响应头中添加charset参数
         converters.add(stringConverter);
-        
+
         // 配置JSON转换器
         MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
         ObjectMapper objectMapper = jsonConverter.getObjectMapper();
-        
+
         // 确保中文字符不被转义为Unicode编码
         objectMapper.getFactory().configure(
-            com.fasterxml.jackson.core.JsonGenerator.Feature.ESCAPE_NON_ASCII, false
-        );
-        
+                com.fasterxml.jackson.core.JsonGenerator.Feature.ESCAPE_NON_ASCII, false);
+
         jsonConverter.setObjectMapper(objectMapper);
         converters.add(jsonConverter);
     }
-} 
+}

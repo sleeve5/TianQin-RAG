@@ -277,13 +277,13 @@ public class OrgTagAuthorizationFilter extends OncePerRequestFilter {
         return null;
     }
 
-    /**
-     * 检查资源是否为公开资源
-     */
-    private boolean isPublicResource(String resourceId) {
-        ResourceInfo resourceInfo = getResourceInfo(resourceId);
-        return resourceInfo != null && resourceInfo.isPublic();
-    }
+    /// **
+    // * 检查资源是否为公开资源
+    // */
+    // private boolean isPublicResource(String resourceId) {
+    // ResourceInfo resourceInfo = getResourceInfo(resourceId);
+    // return resourceInfo != null && resourceInfo.isPublic();
+    // }
 
     /**
      * 从请求头中提取 JWT Token

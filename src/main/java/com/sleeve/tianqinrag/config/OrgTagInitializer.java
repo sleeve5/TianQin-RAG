@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 @Order(2) // 设置优先级，确保在管理员账号初始化器之后运行
 public class OrgTagInitializer implements CommandLineRunner {
     private static final Logger logger = LoggerFactory.getLogger(OrgTagInitializer.class);
-    
+
     private static final String DEFAULT_TAG = "default";
     private static final String DEFAULT_NAME = "默认组织";
     private static final String DEFAULT_DESCRIPTION = "系统默认组织标签，自动分配给所有新用户";
@@ -46,13 +46,13 @@ public class OrgTagInitializer implements CommandLineRunner {
 
         // 创建默认组织标签
         createOrganizationTagIfNotExists(DEFAULT_TAG, DEFAULT_NAME, DEFAULT_DESCRIPTION, adminUser);
-        
+
         // 创建管理员组织标签
         createOrganizationTagIfNotExists(ADMIN_TAG, ADMIN_NAME, ADMIN_DESCRIPTION, adminUser);
-        
+
         logger.info("组织标签初始化完成");
     }
-    
+
     /**
      * 如果组织标签不存在，则创建
      */
@@ -71,4 +71,4 @@ public class OrgTagInitializer implements CommandLineRunner {
             logger.info("组织标签 '{}' 已存在，跳过创建步骤", tagId);
         }
     }
-} 
+}
