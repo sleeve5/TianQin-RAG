@@ -9,8 +9,8 @@ import lombok.Setter;
 public class TextChunk {
 
     // Getters/Setters
-    private int chunkId;       // 分块序号
-    private String content;    // 分块内容
+    private int chunkId; // 分块序号
+    private String content; // 分块内容
 
     // 构造方法
     public TextChunk(int chunkId, String content) {
