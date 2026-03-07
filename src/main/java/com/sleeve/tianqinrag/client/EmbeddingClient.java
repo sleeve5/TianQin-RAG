@@ -59,6 +59,7 @@ public class EmbeddingClient {
 
     /**
      * 调用通义千问 API 生成向量
+     * 
      * @param texts 输入文本列表
      * @return 对应的向量列表
      */
@@ -98,8 +99,8 @@ public class EmbeddingClient {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("model", modelId);
         requestBody.put("input", batch);
-        requestBody.put("dimension", dimension);  // 直接在根级别设置dimension
-        requestBody.put("encoding_format", "float");  // 添加编码格式
+        requestBody.put("dimension", dimension); // 直接在根级别设置dimension
+        requestBody.put("encoding_format", "float"); // 添加编码格式
 
         logger.debug("发送嵌入请求 - 模型: {}, 维度: {}, 批次大小: {}, 文本预览: {}",
                 modelId, dimension, batch.size(),
@@ -119,11 +120,11 @@ public class EmbeddingClient {
 
     private List<float[]> parseVectors(String response) throws Exception {
         JsonNode jsonNode = objectMapper.readTree(response);
-        JsonNode data = jsonNode.get("data");  // 兼容模式下使用data字段
+        JsonNode data = jsonNode.get("data"); // 兼容模式下使用data字段
         if (data == null || !data.isArray()) {
             throw new RuntimeException("API 响应格式错误: data 字段不存在或不是数组");
         }
-        
+
         List<float[]> vectors = new ArrayList<>();
         for (JsonNode item : data) {
             JsonNode embedding = item.get("embedding");
