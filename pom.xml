@@ -12,7 +12,7 @@
     <artifactId>tianqin-rag</artifactId>
     <version>1.0.0</version>
     <name>TianqinRAG</name>
-    <description>天琴 RAG 系统 - 面向引力波探测项目的智能知识库管理平台</description>
+    <description>天琴RAG智能知识库平台 - 面向引力波探测项目的智能知识库管理平台</description>
     <url/>
     <licenses>
         <license/>

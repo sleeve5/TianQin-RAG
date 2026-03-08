@@ -1,6 +1,6 @@
-# 天琴 RAG 系统 (Tianqin RAG System)
+# 天琴RAG智能知识库平台 (Tianqin RAG System)
 
-天琴 RAG 系统是面向天琴引力波探测项目的智能知识库管理平台，采用检索增强生成（RAG）技术，为引力波探测研究提供智能文档处理和检索能力。
+天琴RAG智能知识库平台是面向天琴引力波探测项目的智能知识库管理平台，采用检索增强生成（RAG）技术，为引力波探测研究提供智能文档处理和检索能力。
 
 ## 项目背景
 
@@ -78,7 +78,7 @@ cd frontend && pnpm install && pnpm dev
 
 ## 贡献指南
 
-欢迎为天琴 RAG 系统贡献代码！请遵循以下步骤：
+欢迎为天琴RAG智能知识库平台贡献代码！请遵循以下步骤：
 
 1. Fork 本仓库
 2. 创建特性分支 (`git checkout -b feature/amazing-feature`)
